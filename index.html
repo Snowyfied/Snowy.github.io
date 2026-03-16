@@ -3,562 +3,216 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snowy | Developer V4</title>
 
-<title>Snowy | Developer</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-
+/* ================= GLOBAL ================= */
 html{scroll-behavior:smooth;}
+body{margin:0;font-family:'Inter',sans-serif;background:#030712;color:white;overflow-x:hidden;}
+#scrollbar{position:fixed;top:0;left:0;height:3px;width:0;background:#3b82f6;z-index:9999;}
 
-:root{
---bg:#030712;
---card:rgba(17,24,39,0.6);
---accent:#3b82f6;
---glow:rgba(59,130,246,0.4);
---text:#f9fafb;
---dim:#9ca3af;
---border:rgba(255,255,255,0.08);
-}
+/* ================ 3D PARALLAX BACKGROUND ================ */
+#parallax-bg{position:fixed;top:0;left:0;width:100%;height:100%;overflow:hidden;z-index:-2;}
+.parallax-layer{position:absolute;width:200%;height:200%;background-repeat:no-repeat;background-size:cover;pointer-events:none;}
+.layer1{background-image:url('https://i.ibb.co/NrB9rZ7/layer1.png');}
+.layer2{background-image:url('https://i.ibb.co/0s5L7YH/layer2.png');}
+.layer3{background-image:url('https://i.ibb.co/5rGv7Mj/layer3.png');}
 
-body{
-font-family:'Inter',sans-serif;
-background:var(--bg);
-color:var(--text);
-margin:0;
-overflow-x:hidden;
-}
+/* ================= PARTICLE BACKGROUND ================= */
+#particles{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;}
 
-/* Cursor Glow */
+/* ================ NAVBAR ================ */
+nav{position:fixed;top:25px;left:50%;transform:translateX(-50%);background:rgba(17,24,39,0.7);backdrop-filter:blur(10px);padding:12px 30px;border-radius:100px;display:flex;gap:20px;border:1px solid rgba(255,255,255,0.1);z-index:1000;}
+nav a{color:#9ca3af;text-decoration:none;font-size:.8rem;transition:.3s;}
+nav a:hover{color:#3b82f6;}
 
-#cursor-glow{
-position:fixed;
-width:400px;
-height:400px;
-background:radial-gradient(circle, rgba(59,130,246,0.15), transparent 60%);
-pointer-events:none;
-transform:translate(-50%,-50%);
-z-index:0;
-}
+/* ================ HERO ================ */
+.hero{height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;}
+.hero h1{font-size:clamp(3rem,10vw,6rem);margin:0;background:linear-gradient(#fff,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 
-/* Background X pattern */
+/* ================ CARDS & GRID ================ */
+.card{background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:25px;padding:40px;max-width:900px;width:100%;transition:.3s;}
+.card:hover{transform:translateY(-5px);}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;}
+.project{padding:25px;background:rgba(255,255,255,0.02);border-radius:20px;border:1px solid rgba(255,255,255,0.1);cursor:pointer;transition:.3s;}
+.project:hover{border-color:#3b82f6;transform:translateY(-5px);}
 
-#pattern-container{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-z-index:-1;
-}
+/* ================ MODAL ================ */
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;justify-content:center;align-items:center;opacity:0;visibility:hidden;transition:.3s;z-index:10000;}
+.modal.active{opacity:1;visibility:visible;}
+.modal-content{background:#111827;padding:30px;border-radius:20px;max-width:600px;width:90%;}
+.modal-close{position:absolute;top:20px;right:20px;font-size:1.5rem;cursor:pointer;color:#fff;}
 
-.x-particle{
-position:absolute;
-color:rgba(255,255,255,0.02);
-font-family:monospace;
-font-size:10px;
-transition:all .4s;
-}
+/* ================ SKILL BARS ================ */
+.skill-bar{margin-bottom:15px;}
+.skill-bar span{display:block;background:#111827;border-radius:10px;overflow:hidden;}
+.skill-bar span div{height:20px;width:0%;background:#3b82f6;border-radius:10px;transition:1s;}
 
-.x-particle.active{
-color:var(--accent);
-transform:scale(2);
-text-shadow:0 0 15px var(--accent);
-}
+/* ================ TERMINAL ================ */
+.terminal{background:#020617;border-radius:20px;padding:25px;font-family:monospace;}
+.terminal-header{color:#9ca3af;margin-bottom:10px;}
 
-/* Navigation */
+/* ================ SCROLL ANIMATION ================ */
+.reveal{opacity:0;transform:translateY(40px);transition:1s;}
+.reveal.show{opacity:1;transform:translateY(0);}
 
-nav{
-position:fixed;
-top:25px;
-left:50%;
-transform:translateX(-50%);
-background:rgba(17,24,39,0.7);
-backdrop-filter:blur(10px);
-padding:12px 30px;
-border-radius:100px;
-border:1px solid var(--border);
-display:flex;
-gap:18px;
-z-index:1000;
-}
-
-nav a{
-color:var(--dim);
-text-decoration:none;
-font-size:.8rem;
-transition:.3s;
-}
-
-nav a:hover{
-color:var(--accent);
-}
-
-/* Sections */
-
-section{
-min-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-flex-direction:column;
-padding:120px 20px;
-}
-
-/* Hero */
-
-.hero h1{
-font-size:clamp(3.5rem,14vw,7rem);
-font-weight:800;
-margin:0;
-
-background:linear-gradient(to bottom,#fff 30%,var(--accent)100%);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
-
-.typing{
-color:var(--accent);
-letter-spacing:4px;
-margin-top:10px;
-font-weight:600;
-}
-
-/* Cards */
-
-.content-card{
-background:var(--card);
-border:1px solid var(--border);
-border-radius:35px;
-padding:50px;
-max-width:850px;
-width:100%;
-backdrop-filter:blur(20px);
-}
-
-/* Fade animation */
-
-.fade{
-opacity:0;
-transform:translateY(40px);
-transition:all 1s ease;
-}
-
-.fade.show{
-opacity:1;
-transform:translateY(0);
-}
-
-/* Skills */
-
-.skill{margin-bottom:25px;}
-
-.skill-header{
-display:flex;
-justify-content:space-between;
-margin-bottom:10px;
-}
-
-.progress-bar{
-height:4px;
-background:#1f2937;
-border-radius:10px;
-overflow:hidden;
-}
-
-.progress{
-height:100%;
-width:0;
-background:var(--accent);
-transition:width 1.5s;
-}
-
-/* Grid */
-
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:20px;
-width:100%;
-}
-
-.box{
-background:rgba(255,255,255,0.02);
-border:1px solid var(--border);
-border-radius:20px;
-padding:25px;
-transition:.35s;
-}
-
-.box:hover{
-transform:translateY(-6px);
-border-color:var(--accent);
-box-shadow:0 0 30px var(--glow);
-}
-
-/* Buttons */
-
-.btn{
-display:inline-block;
-padding:15px 40px;
-border-radius:100px;
-text-decoration:none;
-font-weight:600;
-margin-top:20px;
-}
-
-.btn-discord{
-background:white;
-color:black;
-}
-
-.btn-github{
-background:#111827;
-border:1px solid var(--border);
-color:white;
-margin-left:10px;
-}
-
-footer{
-padding:40px;
-opacity:.4;
-font-size:.7rem;
-text-align:center;
-}
-
+/* ================ CONTACT ================ */
+input,textarea{width:100%;padding:12px;margin-top:10px;border-radius:10px;border:none;background:#111827;color:white;}
+button{margin-top:15px;padding:12px 30px;border-radius:100px;border:none;background:#3b82f6;color:white;cursor:pointer;}
+section{padding:120px 20px;display:flex;justify-content:center;}
 </style>
 </head>
-
 <body>
 
-<div id="cursor-glow"></div>
-<div id="pattern-container"></div>
+<div id="scrollbar"></div>
+<div id="parallax-bg">
+  <div class="parallax-layer layer1"></div>
+  <div class="parallax-layer layer2"></div>
+  <div class="parallax-layer layer3"></div>
+</div>
+<canvas id="particles"></canvas>
 
 <nav>
 <a href="#home">Home</a>
-<a href="#welcome">Welcome</a>
-<a href="#about">Experience</a>
-<a href="#services">Services</a>
-<a href="#projects">Work</a>
-<a href="#building">Building</a>
+<a href="#projects">Projects</a>
+<a href="#skills">Skills</a>
+<a href="#terminal">Terminal</a>
 <a href="#contact">Contact</a>
 </nav>
 
 <!-- HERO -->
-
-<section id="home" class="hero fade">
-
-<img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" width="80">
-
+<section id="home">
+<div class="hero">
 <h1>SNOWY</h1>
-
-<div class="typing" id="type"></div>
-
+<p>Python • Java • TypeScript</p>
+</div>
 </section>
 
-<!-- WELCOME -->
-
-<section id="welcome">
-
-<div class="content-card fade">
-
-<p style="font-size:1.4rem;text-align:center;line-height:1.6">
-
-👋 Hi I'm <span style="color:var(--accent);font-weight:700;">Snowy</span><br><br>
-
-A 14 year old developer from Germany 🇩🇪<br>
-
-I build tools with Python, Java and TypeScript.
-
-</p>
-
-</div>
-
-</section>
-
-<!-- EXPERIENCE -->
-
-<section id="about">
-
-<div class="content-card fade">
-
-<h2>Experience</h2>
-
-<div class="skill">
-<div class="skill-header">
-<span><i class="fa-brands fa-python"></i> Python</span>
-<span>8 Months</span>
-</div>
-<div class="progress-bar"><div class="progress" data="85"></div></div>
-</div>
-
-<div class="skill">
-<div class="skill-header">
-<span><i class="fa-brands fa-java"></i> Java</span>
-<span>6 Months</span>
-</div>
-<div class="progress-bar"><div class="progress" data="60"></div></div>
-</div>
-
-<div class="skill">
-<div class="skill-header">
-<span><i class="fa-solid fa-code"></i> TypeScript</span>
-<span>5 Months</span>
-</div>
-<div class="progress-bar"><div class="progress" data="55"></div></div>
-</div>
-
-<div class="skill">
-<div class="skill-header">
-<span><i class="fa-brands fa-js"></i> JavaScript</span>
-<span style="color:var(--accent)">Learning</span>
-</div>
-<div class="progress-bar"><div class="progress" data="35"></div></div>
-</div>
-
-</div>
-
-</section>
-
-<!-- SERVICES -->
-
-<section id="services">
-
-<div class="content-card fade">
-
-<h2 style="text-align:center;">What I Offer</h2>
-
-<div class="grid">
-
-<div class="box">
-<i class="fa-solid fa-robot" style="color:var(--accent)"></i>
-<h4>Discord Bots</h4>
-<p style="color:var(--dim)">Automation systems and tools.</p>
-</div>
-
-<div class="box">
-<i class="fa-solid fa-magnifying-glass" style="color:var(--accent)"></i>
-<h4>Web Scraping</h4>
-<p style="color:var(--dim)">Automated data extraction.</p>
-</div>
-
-<div class="box">
-<i class="fa-solid fa-cube" style="color:var(--accent)"></i>
-<h4>Minecraft Plugins</h4>
-<p style="color:var(--dim)">Custom Java server logic.</p>
-</div>
-
-</div>
-
-</div>
-
-</section>
-
-<!-- PROJECTS -->
-
+<!-- PROJECT FILTER -->
 <section id="projects">
-
-<div class="content-card fade">
-
-<h2 style="text-align:center;">Selected Work</h2>
-
+<div class="card reveal">
+<h2>Projects</h2>
+<div style="margin-bottom:20px">
+<button onclick="filterProjects('all')">All</button>
+<button onclick="filterProjects('bot')">Bots</button>
+<button onclick="filterProjects('web')">Web</button>
+<button onclick="filterProjects('plugin')">Plugins</button>
+</div>
 <div class="grid">
-
-<div class="box">
-<h4>PyAutoBot</h4>
-<p style="color:var(--dim)">Discord moderation system</p>
+<div class="project" data-type="bot">Discord Bot</div>
+<div class="project" data-type="web">Web Scraper</div>
+<div class="project" data-type="plugin">Minecraft Plugin</div>
+<div class="project" data-type="bot">Moderation System</div>
 </div>
-
-<div class="box">
-<h4>DataPulse</h4>
-<p style="color:var(--dim)">Amazon tracker</p>
 </div>
-
-<div class="box">
-<h4>SnowyCore</h4>
-<p style="color:var(--dim)">Minecraft plugin</p>
-</div>
-
-<div class="box">
-<h4>Portfolio</h4>
-<p style="color:var(--dim)">Personal website</p>
-</div>
-
-</div>
-
-</div>
-
 </section>
 
-<!-- CURRENTLY BUILDING -->
-
-<section id="building">
-
-<div class="content-card fade">
-
-<h2>Currently Building ⚡</h2>
-
-<p style="color:var(--dim);line-height:1.7">
-
-• Advanced Discord Bot Framework<br>
-• Minecraft Plugin System<br>
-• Python Web Automation Tools
-
-</p>
-
+<!-- SKILL RADAR -->
+<section id="skills">
+<div class="card reveal">
+<h2>Skill Radar</h2>
+<canvas id="skillChart"></canvas>
 </div>
+</section>
 
+<!-- TERMINAL -->
+<section id="terminal">
+<div class="card reveal">
+<h2>Developer Terminal</h2>
+<div class="terminal">
+<div class="terminal-header">snowy@dev:~</div>
+<p>> whoami</p>
+<p>Snowy — Developer</p>
+<p>> languages</p>
+<p>Python / Java / TypeScript</p>
+<p>> status</p>
+<p>Building cool projects 🚀</p>
+</div>
+</div>
 </section>
 
 <!-- GITHUB -->
-
 <section>
-
-<div class="content-card fade" style="text-align:center">
-
+<div class="card reveal">
 <h2>GitHub Activity</h2>
-
 <img src="https://github-readme-stats.vercel.app/api?username=YOURNAME&theme=dark&show_icons=true">
-
+<br><br>
+<img src="https://ghchart.rshah.org/YOURNAME">
 </div>
-
 </section>
 
 <!-- CONTACT -->
-
 <section id="contact">
-
-<div class="content-card fade" style="text-align:center">
-
-<h2>Let's talk 👋</h2>
-
-<p>Discord: <b>xyz23._</b></p>
-
-<a href="https://discord.com" class="btn btn-discord">
-<i class="fa-brands fa-discord"></i> Discord
-</a>
-
-<a href="https://github.com/" class="btn btn-github">
-<i class="fa-brands fa-github"></i> GitHub
-</a>
-
+<div class="card reveal">
+<h2>Contact</h2>
+<form>
+<input type="text" placeholder="Name">
+<input type="email" placeholder="Email">
+<textarea placeholder="Message"></textarea>
+<button>Send</button>
+</form>
 </div>
-
-<footer>© 2026 SNOWY • GERMANY</footer>
-
 </section>
 
 <script>
+/* ================= PARTICLES ================= */
+const canvas=document.getElementById("particles");
+const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+let particles=[];
+for(let i=0;i<120;i++){
+  particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,vx:(Math.random()-0.5)*0.5,vy:(Math.random()-0.5)*0.5});
+}
+function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p=>{
+    p.x+=p.vx;
+    p.y+=p.vy;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,2,0,Math.PI*2);
+    ctx.fillStyle="rgba(255,255,255,0.2)";
+    ctx.fill();
+  });
+  requestAnimationFrame(animate);
+}
+animate();
 
-/* Cursor Glow */
+/* ================= PROJECT FILTER ================= */
+function filterProjects(type){
+  document.querySelectorAll(".project").forEach(p=>{
+    if(type==="all"){p.style.display="block";return;}
+    if(p.dataset.type===type){p.style.display="block";}else{p.style.display="none";}
+  });
+}
 
-const glow=document.getElementById("cursor-glow");
-
-window.addEventListener("mousemove",e=>{
-glow.style.left=e.clientX+"px";
-glow.style.top=e.clientY+"px";
+/* ================= RADAR CHART ================= */
+new Chart(document.getElementById("skillChart"),{
+  type:"radar",
+  data:{
+    labels:["Python","Java","TypeScript","JavaScript","Problem Solving"],
+    datasets:[{label:"Skills",data:[85,60,55,40,80],backgroundColor:"rgba(59,130,246,0.3)",borderColor:"#3b82f6"}]
+  }
 });
 
-/* Typewriter */
+/* ================= SCROLL PROGRESS ================= */
+window.addEventListener("scroll",()=>{
+  let height=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+  let scrolled=(window.scrollY/height)*100;
+  document.getElementById("scrollbar").style.width=scrolled+"%";
+});
 
-const words=["PYTHON DEVELOPER","JAVA BUILDER","DISCORD BOT CREATOR"];
-let w=0,l=0;
-
-function type(){
-if(w==words.length)w=0;
-
-let text=words[w].slice(0,++l);
-
-document.getElementById("type").textContent=text;
-
-if(l==words[w].length){
-w++;
-l=0;
-setTimeout(type,2000);
-}else{
-setTimeout(type,80);
-}
-}
-
-type();
-
-/* Scroll Animation */
-
+/* ================= SCROLL ANIMATION ================= */
 const observer=new IntersectionObserver(entries=>{
-entries.forEach(e=>{
-if(e.isIntersecting){
-e.target.classList.add("show");
-
-let bar=e.target.querySelector(".progress");
-
-if(bar){
-bar.style.width=bar.getAttribute("data")+"%";
-}
-
-}
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){entry.target.classList.add("show")}
+  });
 });
-},{threshold:.3});
-
-document.querySelectorAll(".fade,.skill").forEach(el=>observer.observe(el));
-
-/* X Grid */
-
-const container=document.getElementById("pattern-container");
-const spacing=60;
-const particles=[];
-
-function grid(){
-
-container.innerHTML="";
-particles.length=0;
-
-const cols=Math.floor(window.innerWidth/spacing);
-const rows=Math.floor(window.innerHeight/spacing);
-
-for(let i=0;i<cols*rows;i++){
-
-let x=document.createElement("div");
-x.className="x-particle";
-x.innerText="x";
-
-let c=i%cols;
-let r=Math.floor(i/cols);
-
-let px=c*spacing+spacing/2;
-let py=r*spacing+spacing/2;
-
-x.style.left=px+"px";
-x.style.top=py+"px";
-
-container.appendChild(x);
-
-particles.push({el:x,x:px,y:py});
-}
-
-}
-
-window.addEventListener("mousemove",e=>{
-
-particles.forEach(p=>{
-
-let dx=e.clientX-p.x;
-let dy=e.clientY-p.y;
-
-let dist=Math.sqrt(dx*dx+dy*dy);
-
-if(dist<100)p.el.classList.add("active");
-else p.el.classList.remove("active");
-
-});
-
-});
-
-window.addEventListener("resize",grid);
-
-grid();
-
+document.querySelectorAll(".reveal").forEach(el=>observer.observe(el));
 </script>
 
 </body>
